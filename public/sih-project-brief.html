@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>SIH Project Brief - GeM Bid Compliance Verification</title>
+  <style>
+    @page { size: A4; margin: 17mm 15mm; }
+    :root { --teal:#0f766e; --dark:#0f172a; --muted:#475569; --line:#cbd5e1; --soft:#f0fdfa; }
+    * { box-sizing:border-box; }
+    body { font-family: Arial, Helvetica, sans-serif; color:var(--dark); line-height:1.45; font-size:10.5pt; margin:0; }
+    h1 { font-size:28pt; line-height:1.1; margin:0 0 10px; color:white; }
+    h2 { font-size:17pt; margin:24px 0 9px; color:var(--teal); border-bottom:2px solid #99f6e4; padding-bottom:4px; }
+    h3 { font-size:12pt; margin:13px 0 5px; color:var(--dark); }
+    p { margin:5px 0 8px; }
+    ul, ol { margin:5px 0 9px 20px; padding:0; }
+    li { margin:3px 0; }
+    .cover { background:linear-gradient(135deg,#115e59,#0f766e); padding:32px 30px 28px; border-radius:10px; color:white; margin-bottom:18px; }
+    .cover .eyebrow { text-transform:uppercase; letter-spacing:2px; font-size:9pt; opacity:.85; }
+    .cover .subtitle { font-size:14pt; margin-top:12px; opacity:.92; }
+    .meta { display:grid; grid-template-columns:1fr 1fr; gap:7px 20px; background:#f8fafc; border:1px solid var(--line); border-radius:8px; padding:12px; }
+    .meta b { color:var(--teal); }
+    .box { background:var(--soft); border-left:4px solid var(--teal); padding:9px 12px; margin:8px 0; }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .card { border:1px solid var(--line); border-radius:7px; padding:10px; break-inside:avoid; }
+    table { width:100%; border-collapse:collapse; margin:7px 0 10px; }
+    th, td { border:1px solid var(--line); padding:6px 7px; text-align:left; vertical-align:top; }
+    th { background:#ccfbf1; color:#134e4a; }
+    code { font-family:Consolas, monospace; font-size:9pt; background:#f1f5f9; padding:1px 3px; }
+    .small { font-size:9pt; color:var(--muted); }
+    .page-break { break-before:page; }
+    .footer { margin-top:20px; padding-top:7px; border-top:1px solid var(--line); font-size:8.5pt; color:var(--muted); }
+  </style>
+</head>
+<body>
+  <section class="cover">
+    <div class="eyebrow">Smart India Hackathon • Technical Solution Brief</div>
+    <h1>GeM Bid Compliance Verification</h1>
+    <div class="subtitle">AI-assisted, officer-controlled compliance verification for government procurement</div>
+    <p style="margin-top:22px">A transparent dashboard that validates bidder documents, aggregates statutory checks, explains risk, and preserves the human decision and audit trail.</p>
+  </section>
+
+  <div class="meta">
+    <div><b>Problem statement:</b> CPCL GeM bid compliance verification</div>
+    <div><b>Theme:</b> E-Governance / Procurement Technology</div>
+    <div><b>Primary users:</b> Procurement officers and verification teams</div>
+    <div><b>Deployment:</b> Browser dashboard + REST backend</div>
+    <div><b>Frontend:</b> React, TypeScript, Vite, Tailwind CSS</div>
+    <div><b>Integration:</b> Compliance APIs, document processing, audit service</div>
+  </div>
+
+  <h2>1. Problem Statement</h2>
+  <p>Government procurement teams must verify bidder identity, registrations, statutory filings, local-content declarations, blacklisting status, and supporting documents before taking a tender decision. Manual verification is slow, inconsistent, difficult to audit, and can hide missing evidence.</p>
+  <div class="box"><b>Proposed solution:</b> one evidence-driven workspace that combines automated checks with clear explanations while keeping the final decision with the authorised officer.</div>
+
+  <h2>2. Solution Overview</h2>
+  <div class="grid">
+    <div class="card"><h3>Bidder onboarding</h3><p>Capture legal name, PAN and GSTIN. Validate formats before documents are sent to the service.</p></div>
+    <div class="card"><h3>Document verification</h3><p>Accept PDF, JPEG and PNG files under 10 MB and track asynchronous processing with a job ID.</p></div>
+    <div class="card"><h3>Compliance intelligence</h3><p>Display weighted score, risk level, AI recommendation, check status, score and evidence detail.</p></div>
+    <div class="card"><h3>Human governance</h3><p>Approve, reject, or override with a mandatory reason. Every action is written to the audit endpoint.</p></div>
+  </div>
+
+  <h2>3. Functional Requirements</h2>
+  <ol>
+    <li>Select and review multiple tender bidders.</li>
+    <li>Show complete bidder identity, contact, tender and submission information.</li>
+    <li>Validate PAN format <code>ABCDE1234F</code> and 15-character GSTIN format.</li>
+    <li>Upload one or more PDF, JPEG or PNG files, maximum 10 MB per file.</li>
+    <li>Submit nested bidder data and documents using multipart form data.</li>
+    <li>Poll verification status every five seconds until Completed or Failed.</li>
+    <li>Render every compliance check from backend JSON without hardcoded status labels.</li>
+    <li>Allow re-verification and present a friendly rate-limit countdown for HTTP 429.</li>
+    <li>Require an officer comment for Approve, Reject and Override actions.</li>
+    <li>Maintain a visible decision state and audit trail.</li>
+  </ol>
+
+  <h2>4. Technical Architecture</h2>
+  <table>
+    <tr><th>Layer</th><th>Technology / responsibility</th></tr>
+    <tr><td>Presentation</td><td>React + TypeScript components, responsive Tailwind UI, accessible controls and inline validation.</td></tr>
+    <tr><td>State and async data</td><td>TanStack Query for compliance queries, mutations, caching, polling and invalidation.</td></tr>
+    <tr><td>API client</td><td>Axios client with base URL, auth header, timeout, error normalisation and global rate-limit event.</td></tr>
+    <tr><td>Backend contract</td><td><code>GET compliance-status</code>, <code>POST bidders</code>, <code>GET status</code>, <code>POST audit</code>, <code>PATCH override</code>, <code>POST reverify</code>.</td></tr>
+    <tr><td>Persistence</td><td>Production backend database stores bidder records, evidence, verification results and immutable audit events.</td></tr>
+  </table>
+
+  <h2>5. API and Data Flow</h2>
+  <ol>
+    <li>Officer enters bidder details and selects documents.</li>
+    <li>Client validates PAN, GSTIN, file type and size.</li>
+    <li>Client sends <code>{ bidder: { name, pan, gstin }, documents: [...] }</code>.</li>
+    <li>Server returns <code>{ job_id }</code>; the UI polls <code>/status/{job_id}</code>.</li>
+    <li>On completion, the compliance query is refreshed and all results are rendered.</li>
+    <li>Officer submits an action and mandatory comment to <code>/audit</code>.</li>
+    <li>Override additionally calls <code>/bidders/{id}/override</code> before audit logging.</li>
+  </ol>
+
+  <h2>6. AI/ML and Explainability</h2>
+  <ul>
+    <li>AI recommendation is advisory and never silently changes the officer decision.</li>
+    <li>Every recommendation is accompanied by score, risk level, check status and details.</li>
+    <li>Manual-review states expose uncertainty instead of forcing a binary result.</li>
+    <li>Future model versions should store model ID, input evidence references, confidence, timestamp and explanation.</li>
+    <li>Human override is always available and requires a recorded justification.</li>
+  </ul>
+
+  <h2>7. Security and Reliability</h2>
+  <div class="grid">
+    <div class="card"><h3>Security</h3><ul><li>JWT/OIDC authentication in production</li><li>Role-based officer permissions</li><li>HTTPS and encrypted document storage</li><li>Input validation and malware scanning</li><li>PII masking in logs</li></ul></div>
+    <div class="card"><h3>Reliability</h3><ul><li>Timeouts and readable errors</li><li>Retry policy for transient queries</li><li>Rate-limit handling with countdown</li><li>Idempotent audit requests</li><li>Immutable audit history</li></ul></div>
+  </div>
+
+  <h2>8. Non-Functional Requirements</h2>
+  <table>
+    <tr><th>Area</th><th>Target</th></tr>
+    <tr><td>Performance</td><td>Initial dashboard interaction under 2 seconds on a normal office network; non-blocking async verification.</td></tr>
+    <tr><td>Accessibility</td><td>Keyboard-accessible controls, visible errors, semantic labels, clear colour plus text status.</td></tr>
+    <tr><td>Scalability</td><td>Stateless API workers, queue-based document processing and object storage for evidence.</td></tr>
+    <tr><td>Auditability</td><td>Every decision records actor, bidder, action, comment and timestamp.</td></tr>
+    <tr><td>Maintainability</td><td>Typed contracts, reusable components, central API client and targeted validation.</td></tr>
+  </table>
+
+  <h2>9. Judging Criteria</h2>
+  <ul><li><b>Impact:</b> reduce verification time and improve consistency for procurement teams.</li><li><b>Innovation:</b> explainable AI plus mandatory human governance, not an opaque auto-decision.</li><li><b>Feasibility:</b> modular REST integration and asynchronous processing fit existing government systems.</li><li><b>Security:</b> evidence protection, role controls and traceable decisions.</li><li><b>Usability:</b> one-screen review, clear status, no blank states, and meaningful errors.</li><li><b>Scalability:</b> supports more bidders, checks, portals and verification models without UI rewrites.</li></ul>
+
+  <div class="page-break"></div>
+  <h2>10. Expected Demo Flow</h2>
+  <ol>
+    <li>Open the dashboard and select a bidder.</li>
+    <li>Show bidder information, score, risk and compliance breakdown.</li>
+    <li>Enter an invalid PAN/GSTIN to demonstrate instant validation.</li>
+    <li>Upload a supported document and submit for verification.</li>
+    <li>Show Processing status, completion refresh and error handling.</li>
+    <li>Click Override, demonstrate the mandatory reason, and show recorded decision.</li>
+    <li>Trigger Re-verify and explain the rate-limit protection.</li>
+  </ol>
+
+  <h2>11. Likely Judge Questions and Answers</h2>
+  <table>
+    <tr><th>Question</th><th>Suggested answer</th></tr>
+    <tr><td>Does AI make the final decision?</td><td>No. AI only provides decision support. The authorised officer approves, rejects or overrides with a mandatory reason.</td></tr>
+    <tr><td>How do you prevent incorrect identifiers?</td><td>PAN and GSTIN are normalised and format-validated in the browser, then validated again by the backend.</td></tr>
+    <tr><td>What happens during long verification?</td><td>The server returns a job ID. The UI polls every five seconds and shows a local Processing state instead of freezing the page.</td></tr>
+    <tr><td>How is the result explainable?</td><td>The score is broken into named checks with status, points and evidence details; uncertain checks become MANUAL_REVIEW.</td></tr>
+    <tr><td>How is tampering detected?</td><td>Production design uses immutable audit events, actor identity, timestamps, document hashes and server-side permission checks.</td></tr>
+    <tr><td>Can it scale to other government portals?</td><td>Yes. Portal adapters can normalise source responses into the common compliance-check contract.</td></tr>
+  </table>
+
+  <h2>12. Team Roles</h2>
+  <table>
+    <tr><th>Role</th><th>Responsibility</th></tr>
+    <tr><td>Product / domain lead</td><td>Procurement workflow, rules and stakeholder validation.</td></tr>
+    <tr><td>Frontend engineer</td><td>Dashboard, accessibility, validation and officer workflows.</td></tr>
+    <tr><td>Backend engineer</td><td>REST APIs, authentication, queue and audit persistence.</td></tr>
+    <tr><td>AI/ML engineer</td><td>Risk scoring, evidence extraction and explainability.</td></tr>
+    <tr><td>Security / DevOps</td><td>Deployment, monitoring, secrets, scanning and disaster recovery.</td></tr>
+  </table>
+
+  <h2>13. Pitch Checklist</h2>
+  <ul>
+    <li>State the manual-verification pain in one sentence.</li>
+    <li>Demonstrate one complete bidder journey, not isolated screens.</li>
+    <li>Show invalid PAN/GSTIN handling and document restrictions.</li>
+    <li>Explain why human approval and auditability are non-negotiable.</li>
+    <li>Quantify expected impact: time saved, fewer omissions, faster audits.</li>
+    <li>Close with scalability: more checks, portals, departments and languages.</li>
+  </ul>
+
+  <div class="footer">Prepared for Smart India Hackathon presentation • Project: GeM Bid Compliance Verification • Generated 10 September 2026</div>
+</body>
+</html>

@@ -1,0 +1,19 @@
+# Frontend
+node_modules/
+dist/
+
+# Backend
+gem-compliance-backend/venv/
+**/__pycache__/
+*.pyc
+
+# Database
+*.db
+
+# Environment files
+.env
+.env.local
+
+# OS files
+Thumbs.db
+.DS_Store
